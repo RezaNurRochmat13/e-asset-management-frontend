@@ -10,9 +10,7 @@ export default function Logo({ className = "h-8 w-8" }: LogoProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Outer ring */}
       <circle cx="20" cy="20" r="18" strokeWidth="2.5" stroke="currentColor" className="text-blue-600" />
-      {/* Inner diamond */}
       <path
         d="M20 8l10 12-10 12-10-12L20 8z"
         fill="currentColor"
@@ -22,7 +20,6 @@ export default function Logo({ className = "h-8 w-8" }: LogoProps) {
         strokeLinejoin="round"
         className="text-blue-600"
       />
-      {/* Rising chart line */}
       <path
         d="M12 24l5-6 4 3 7-8"
         stroke="currentColor"
@@ -31,7 +28,6 @@ export default function Logo({ className = "h-8 w-8" }: LogoProps) {
         strokeLinejoin="round"
         className="text-blue-500"
       />
-      {/* Chart dot */}
       <circle cx="28" cy="13" r="2" fill="currentColor" className="text-blue-500" />
     </svg>
   );
