@@ -37,16 +37,21 @@ export type DashboardData = {
   recent_activities: RecentActivity[]
 }
 
+type ApiResponse<T> = {
+  status: string
+  data: T
+}
+
 export async function getDashboardData(): Promise<DashboardData> {
   const [assetRes, locationRes, activityRes] = await Promise.all([
-    api.get<AssetSummary>("/asset_summary"),
-    api.get<LocationSummary>("/location_summary"),
-    api.get<RecentActivity[]>("/recent_activities"),
+    api.get<ApiResponse<AssetSummary>>("/asset_summary"),
+    api.get<ApiResponse<LocationSummary>>("/location_summary"),
+    api.get<ApiResponse<RecentActivity[]>>("/recent_activities"),
   ])
 
   return {
-    asset_summary: assetRes.data,
-    location_summary: locationRes.data,
-    recent_activities: activityRes.data,
+    asset_summary: assetRes.data.data,
+    location_summary: locationRes.data.data,
+    recent_activities: activityRes.data.data,
   }
 }
