@@ -2,8 +2,16 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Package, MapPin, Users, Clock } from "lucide-react"
+import { Package, MapPin, DollarSign, Clock, BarChart3 } from "lucide-react"
 import { useDashboard } from "@/app/shared/hooks/use-dashboard"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts"
 
 type User = {
   id: string
@@ -37,14 +45,14 @@ export default function DashboardPage() {
       icon: Package,
     },
     {
-      label: "Locations",
-      value: isLoading ? "..." : data?.location_summary.total_locations ?? "—",
-      icon: MapPin,
+      label: "Total Value",
+      value: isLoading ? "..." : data?.asset_summary.total_value ? Number(data.asset_summary.total_value).toLocaleString() : "—",
+      icon: DollarSign,
     },
     {
-      label: "Categories",
-      value: isLoading ? "..." : data?.asset_summary.total_categories ?? "—",
-      icon: Users,
+      label: "Locations",
+      value: isLoading ? "..." : data?.total_locations ?? "—",
+      icon: MapPin,
     },
   ]
 
@@ -78,6 +86,55 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* Location chart */}
+      {data?.location_summary && Object.keys(data.location_summary).length > 0 && (
+        <div className="rounded-xl border border-gray-200 bg-white p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="h-5 w-5 text-gray-500" />
+            <h2 className="text-base font-semibold text-gray-900">
+              Assets per Location
+            </h2>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={Object.entries(data.location_summary).map(([name, count]) => ({
+                  name,
+                  count,
+                }))}
+                margin={{ top: 0, right: 0, left: -16, bottom: 0 }}
+              >
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 12, fill: "#6b7280" }}
+                  axisLine={false}
+                  tickLine={false}
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "8px",
+                    border: "1px solid #e5e7eb",
+                    fontSize: "13px",
+                  }}
+                />
+                <Bar
+                  dataKey="count"
+                  fill="#111827"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={48}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
       <div className="rounded-xl border border-gray-200 bg-white p-6">
         <div className="flex items-center gap-2 mb-4">
           <Clock className="h-5 w-5 text-gray-500" />
@@ -96,10 +153,10 @@ export default function DashboardPage() {
               >
                 <div>
                   <p className="text-sm font-medium text-gray-900">
-                    {activity.action}
+                    {activity.user} — {activity.action}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {activity.description}
+                    {activity.asset}{activity.remarks ? ` — ${activity.remarks}` : ""}
                   </p>
                 </div>
                 <span className="text-xs text-gray-400 whitespace-nowrap ml-4">
