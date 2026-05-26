@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Package, MapPin, Users } from "lucide-react"
+import { Package, MapPin, Users, Clock } from "lucide-react"
+import { useDashboard } from "@/app/shared/hooks/use-dashboard"
 
 type User = {
   id: string
@@ -13,6 +14,7 @@ type User = {
 export default function DashboardPage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
+  const { data, isLoading } = useDashboard()
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -29,9 +31,21 @@ export default function DashboardPage() {
   if (!user) return null
 
   const stats = [
-    { label: "Total Assets", value: "—", icon: Package },
-    { label: "Locations", value: "—", icon: MapPin },
-    { label: "Users", value: "1", icon: Users },
+    {
+      label: "Total Assets",
+      value: isLoading ? "..." : data?.asset_summary.total_assets ?? "—",
+      icon: Package,
+    },
+    {
+      label: "Locations",
+      value: isLoading ? "..." : data?.location_summary.total_locations ?? "—",
+      icon: MapPin,
+    },
+    {
+      label: "Categories",
+      value: isLoading ? "..." : data?.asset_summary.total_categories ?? "—",
+      icon: Users,
+    },
   ]
 
   return (
@@ -65,12 +79,38 @@ export default function DashboardPage() {
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-6">
-        <h2 className="text-base font-semibold text-gray-900">
-          Recent Activity
-        </h2>
-        <p className="mt-2 text-sm text-gray-500">
-          No recent activity to show.
-        </p>
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="h-5 w-5 text-gray-500" />
+          <h2 className="text-base font-semibold text-gray-900">
+            Recent Activity
+          </h2>
+        </div>
+        {isLoading ? (
+          <p className="text-sm text-gray-500">Loading...</p>
+        ) : data?.recent_activities?.length ? (
+          <div className="space-y-3">
+            {data.recent_activities.map((activity) => (
+              <div
+                key={activity.id}
+                className="flex items-start justify-between border-b border-gray-100 pb-3 last:border-0 last:pb-0"
+              >
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {activity.action}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {activity.description}
+                  </p>
+                </div>
+                <span className="text-xs text-gray-400 whitespace-nowrap ml-4">
+                  {new Date(activity.created_at).toLocaleDateString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">No recent activity to show.</p>
+        )}
       </div>
     </div>
   )
